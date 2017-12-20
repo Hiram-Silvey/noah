@@ -10,6 +10,7 @@
 # ---------------------------------------------------------------------------
 
 snapshot=""
+snapshot_host=""
 
 snapshot_download()
 {
@@ -25,7 +26,7 @@ snapshot_download()
 snapshot_restore()
 {
     sudo -u postgres psql -c "UPDATE pg_database SET datallowconn = true WHERE datname = 'ark_${network}';"
-    
+
     pg_restore -n public -O -j 8 -d ark_${network} ${snapshot_dir}/current >> $noah_log 2>&1
 
     until [ $? -eq 0 ]; do
@@ -40,24 +41,27 @@ snapshot_restore()
 
 snapshot_choose()
 {
-    # initial determination of what snapshot to use
-    if [ "$network" == 'mainnet' ]; then
-        snapshot=${snapshot_mainnet[$RANDOM % ${#snapshot_mainnet[@]}]}
-    else
-        snapshot=${snapshot_devnet[$RANDOM % ${#snapshot_devnet[@]}]}
-    fi
+    # initial choice of host
+    snapshot_choose_host
 
     # prevent the use of the same snapshot twice in a row
     local snapshot_previous_log="${noah_dir}/data/snapshot.txt"
     local snapshot_previous=$(cat $snapshot_previous_log)
 
-    while [ "$snapshot" == "$snapshot_previous" ]; do
-        if [ "$network" == 'mainnet' ]; then
-            snapshot=${snapshot_mainnet[$RANDOM % ${#snapshot_mainnet[@]}]}
-        else
-            snapshot=${snapshot_devnet[$RANDOM % ${#snapshot_devnet[@]}]}
-        fi
+    while [[ "$snapshot_host" == "$snapshot_previous" ]]; do
+        snapshot_choose_host
     done
+
+    # the host doesn't have a manifest so we start over
+    until $(curl "${snapshot_host}/manifest" --silent --head --fail --output /dev/null); do
+        snapshot_choose
+    done
+
+    # grab the snapshot file with the best height
+    local snapshot_file=$(curl "${snapshot_host}/manifest" -s | jq -r '. | sort_by(.height) | reverse | .[0].file')
+
+    # initial determination of what snapshot to use
+    snapshot="${snapshot_host}${snapshot_file}"
 
     # choose a new snapshot until it exists
     until $(curl "$snapshot" --silent --head --fail --output /dev/null); do
@@ -65,13 +69,22 @@ snapshot_choose()
     done
 
     # choose a new snapshot until it exceeds 0MB
-    until [[ $(curl -sI $snapshot | wc -c) -gt 0 ]]; do
+    until [[ $(curl -sI "$snapshot" | wc -c) -gt 580 ]]; do
         snapshot_choose
     done
 
     # store the current snapshot url
-    echo "$snapshot" > $snapshot_previous_log
+    echo "$snapshot_host" > "$snapshot_previous_log"
 
     # log which snapshot we chose
     log "Chose ${snapshot}..."
+}
+
+snapshot_choose_host()
+{
+    if [[ "$network" == 'mainnet' ]]; then
+        snapshot_host=${snapshot_mainnet[$RANDOM % ${#snapshot_mainnet[@]}]}
+    else
+        snapshot_host=${snapshot_devnet[$RANDOM % ${#snapshot_devnet[@]}]}
+    fi
 }
