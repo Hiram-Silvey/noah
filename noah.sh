@@ -19,6 +19,13 @@ noah_log="${noah_dir}/noah.log"
 . "${noah_dir}/variables.sh"
 
 # -------------------------
+# Declarations
+# -------------------------
+
+declaration="declarations/ark-${network}.json"
+jq --arg PATH "${ark_dir}" '.apps[0].cwd = ["''"]' <<< cat "${declaration}" > tmp.$$.json && mv tmp.$$.json "${declaration}"
+
+# -------------------------
 # Modules
 # -------------------------
 
