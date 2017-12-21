@@ -72,7 +72,7 @@ snapshot_choose()
     done
 
     # choose a new snapshot until it exceeds 0MB
-    until [[ $(curl -sI "$snapshot" | wc -c) -gt 580 ]]; do
+    until [[ $(curl -sI "$snapshot" | wc -c) -gt 0 ]]; do
         log "Invalid Size - Choosing again..."
         snapshot_choose
     done
