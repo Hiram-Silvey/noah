@@ -1,0 +1,11 @@
+{
+    "apps": [{
+        "name": "ark",
+        "script": "~/ark-node/app.js",
+        "args": ["--genesis genesisBlock.mainnet.json --config config.mainnet.json"],
+        "instances": 1,
+        "exec_mode": "fork",
+        "log_date_format": "YYYY-MM-DD HH:mm Z",
+        "merge_logs": false
+    }]
+}
