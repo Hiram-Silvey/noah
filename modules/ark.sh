@@ -11,25 +11,25 @@
 
 ark_start()
 {
-    pm2 start "${noah_dir}/declarations/ark-${network}.json" >> $noah_log 2>&1
+    pm2 start "${declaration}" >> $noah_log 2>&1
 }
 
 ark_stop()
 {
-    pm2 stop "${noah_dir}/declarations/ark-${network}.json" >> $noah_log 2>&1
+    pm2 stop "${declaration}" >> $noah_log 2>&1
 }
 
 ark_restart()
 {
-    pm2 restart "${noah_dir}/declarations/ark-${network}.json" >> $noah_log 2>&1
+    pm2 restart "${declaration}" >> $noah_log 2>&1
 }
 
 ark_reload()
 {
-    pm2 reload "${noah_dir}/declarations/ark-${network}.json" >> $noah_log 2>&1
+    pm2 reload "${declaration}" >> $noah_log 2>&1
 }
 
 ark_delete()
 {
-    pm2 delete "${noah_dir}/declarations/ark-${network}.json" >> $noah_log 2>&1
+    pm2 delete "${declaration}" >> $noah_log 2>&1
 }

@@ -19,7 +19,7 @@ rebuild_via_monitor()
         notify "Stopping ARK Process..."
     fi
 
-    ark_stop
+    ark_delete
 
     if [[ $trigger_method_notify = true ]]; then
         notify "Dropping Database Connections..."
@@ -87,7 +87,7 @@ rebuild_via_command()
     noah_stop
 
     info "Stopping ARK Process..."
-    ark_stop
+    ark_delete
 
     info "Dropping Database Connections..."
     database_close

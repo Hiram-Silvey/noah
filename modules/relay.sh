@@ -26,7 +26,7 @@ rebuild_with_relay()
     fi
 
     jq '.forging.secret = []' <<< cat $config > tmp.$$.json && mv tmp.$$.json $config
-    ark_stop
+    ark_delete
     sleep 2
 
     # enable relay node...
@@ -49,7 +49,7 @@ rebuild_with_relay()
         notify "Enable Forging Node..."
     fi
 
-    ark_stop
+    ark_delete
     sleep 2
     jq ".forging.secret = [\"$relay_secret\"]" <<< cat $config > tmp.$$.json && mv tmp.$$.json $config
     ark_start
