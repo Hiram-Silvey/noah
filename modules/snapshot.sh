@@ -49,11 +49,13 @@ snapshot_choose()
     local snapshot_previous=$(cat $snapshot_previous_log)
 
     while [[ "$snapshot_host" == "$snapshot_previous" ]]; do
-        snapshot_choose_host
+        log "Duplicate - Choosing again..."
+        snapshot_choose
     done
 
     # the host doesn't have a manifest so we start over
     until $(curl "${snapshot_host}/manifest" --silent --head --fail --output /dev/null); do
+        log "Manifest not found - Choosing again..."
         snapshot_choose
     done
 
@@ -65,11 +67,13 @@ snapshot_choose()
 
     # choose a new snapshot until it exists
     until $(curl "$snapshot" --silent --head --fail --output /dev/null); do
+        log "Not Found - Choosing again..."
         snapshot_choose
     done
 
     # choose a new snapshot until it exceeds 0MB
     until [[ $(curl -sI "$snapshot" | wc -c) -gt 580 ]]; do
+        log "Invalid Size - Choosing again..."
         snapshot_choose
     done
 
