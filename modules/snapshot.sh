@@ -59,6 +59,14 @@ snapshot_choose()
         snapshot_choose
     done
 
+    # if the snapshot we selected is way off from the network we will select a new one
+    local snapshot_height=$(curl "${snapshot_host}/manifest" -s | jq -r '. | sort_by(.height) | reverse | .[0].height')
+
+    if [[ $((network_height-snapshot_height)) -gt 255 ]]; then
+        log "Too Far Behind - Choosing again..."
+        snapshot_choose
+    fi
+
     # grab the snapshot file with the best height
     local snapshot_file=$(curl "${snapshot_host}/manifest" -s | jq -r '. | sort_by(.height) | reverse | .[0].file')
 

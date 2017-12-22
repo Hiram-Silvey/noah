@@ -15,6 +15,8 @@ rebuild_via_monitor()
         notify "Starting Rebuild..."
     fi
 
+    get_network_height
+
     if [[ $trigger_method_notify = true ]]; then
         notify "Stopping ARK Process..."
     fi
@@ -84,6 +86,7 @@ rebuild_via_command()
 {
     heading "Starting Rebuild..."
 
+    get_network_height
     noah_stop
 
     info "Stopping ARK Process..."
@@ -117,4 +120,11 @@ rebuild_via_command()
     ark_start
 
     success "Rebuild completed!"
+}
+
+get_network_height()
+{
+    local heights=$(curl http://localhost:4001/api/peers -s | jq -r '.peers[] | .height')
+
+    network_height=$(echo "${heights[*]}" | sort -nr | head -n1)
 }
