@@ -16,7 +16,7 @@
 rebuild_with_relay()
 {
     local config=${ark_dir}/config.${network}.json
-    local relay="-p ${relay_port} ${relay_user}@${relay_ip}"
+    local relay="-i ${relay_key} -p ${relay_port} ${relay_user}@${relay_ip}"
 
     # disable forging node...
     info "Disable Forging Node..."

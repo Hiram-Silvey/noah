@@ -51,4 +51,8 @@ check_configuration()
     if (($relay_port <= 0)); then
         abort 1 "relay_port [$relay_port] has to be greater than 0."
     fi
+
+    if [ ! -f $relay_key ]; then
+        abort 1 "relay_key [$relay_key] does not exist."
+    fi
 }
